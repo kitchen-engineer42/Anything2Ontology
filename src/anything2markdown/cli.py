@@ -208,7 +208,7 @@ def init():
     if not gitkeep.exists():
         gitkeep.touch()
 
-    click.echo("Initialized Anything2Workspace directories:")
+    click.echo("Initialized Anything2Ontology directories:")
     click.echo(f"  Input:  {settings.input_dir}")
     click.echo(f"  Output: {settings.output_dir}")
     click.echo(f"  Logs:   {settings.log_dir}")

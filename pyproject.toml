@@ -1,7 +1,7 @@
 [project]
-name = "anything2workspace"
+name = "anything2ontology"
 version = "0.1.0"
-description = "Knowledge management and modelling pipeline - converts various media to structured workspace"
+description = "Knowledge management and modelling pipeline - converts various media to structured ontology"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -53,14 +53,14 @@ dev = [
 anything2md = "anything2markdown.cli:main"
 md2chunks = "markdown2chunks.cli:main"
 chunks2skus = "chunks2skus.cli:main"
-skus2workspace = "skus2workspace.cli:main"
+skus2ontology = "skus2ontology.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/anything2markdown", "src/markdown2chunks", "src/chunks2skus", "src/skus2workspace"]
+packages = ["src/anything2markdown", "src/markdown2chunks", "src/chunks2skus", "src/skus2ontology"]
 
 [tool.ruff]
 line-length = 100

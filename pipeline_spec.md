@@ -1,4 +1,4 @@
-# Anything2Workspace Pipeline Specification
+# Anything2Ontology Pipeline Specification
 
 **Version**: 1.4
 **Last Updated**: 2026-02-17
@@ -8,13 +8,13 @@
 
 ## Executive Summary
 
-Anything2Workspace is a knowledge management pipeline that transforms diverse media inputs (documents, videos, websites, code repositories) into a structured workspace optimized for AI coding agents. The end goal: a user can point Claude Code or similar agents at this workspace and say "Read this file and start building" to produce a working application.
+Anything2Ontology is a knowledge management pipeline that transforms diverse media inputs (documents, videos, websites, code repositories) into a structured ontology optimized for AI coding agents. The end goal: a user can point Claude Code or similar agents at this ontology and say "Read this file and start building" to produce a working application.
 
 The pipeline consists of 5 loosely-coupled modules:
 1. **Anything2Markdown** - Universal parser (Complete)
 2. **Markdown2Chunks** - Smart chunking (Complete)
 3. **Chunks2SKUs** - Knowledge extraction (Complete)
-4. **SKUs2Workspace** - Workspace assembly (Complete)
+4. **SKUs2Ontology** - Workspace assembly (Complete)
 5. **Pipeline Summary** - Run reporting (Pending)
 
 This document specifies Modules 1-4 in detail.
@@ -811,17 +811,17 @@ scipy>=1.11.0          # Agglomerative clustering
 
 ---
 
-## Module 4: SKUs2Workspace
+## Module 4: SKUs2Ontology
 
 ### Purpose
 
-Assemble extracted SKUs into a self-contained workspace where a coding agent can "read spec.md and start building." This is the final module that produces the deliverable workspace directory.
+Assemble extracted SKUs into a self-contained ontology where a coding agent can "read spec.md and start building." This is the final module that produces the deliverable ontology directory.
 
 ### Why a Separate Assembly Step?
 
-Module 3 outputs SKUs into `output/skus/` with paths referencing the extraction directory (e.g., `test_data/basel_skus/factual/sku_001`). A workspace needs:
-- **Self-contained paths**: All references use workspace-relative paths (`skus/factual/sku_001`)
-- **Flat entry points**: `mapping.md` and `eureka.md` at workspace root, not buried in `meta/`
+Module 3 outputs SKUs into `output/skus/` with paths referencing the extraction directory (e.g., `test_data/basel_skus/factual/sku_001`). A ontology needs:
+- **Self-contained paths**: All references use ontology-relative paths (`skus/factual/sku_001`)
+- **Flat entry points**: `mapping.md` and `eureka.md` at ontology root, not buried in `meta/`
 - **Agent-friendly entry**: `spec.md` + `README.md` that tell the agent what to build and where to find knowledge
 
 ### Why an Interactive Chatbot?
@@ -830,7 +830,7 @@ A spec cannot be auto-generated—it requires user intent. The chatbot:
 - **Interviews** the user about goals, target users, and features
 - **Suggests** relevant SKUs from the knowledge base
 - **Iterates** on the spec based on feedback
-- **References** SKUs by workspace-relative paths so the coding agent can find them
+- **References** SKUs by ontology-relative paths so the coding agent can find them
 
 ### Why Compressed Context?
 
@@ -842,16 +842,16 @@ A spec cannot be auto-generated—it requires user intent. The chatbot:
 
 #### Step 1: Assembly (`assembler.py`)
 
-**Class**: `WorkspaceAssembler(skus_dir, workspace_dir)`
+**Class**: `OntologyAssembler(skus_dir, ontology_dir)`
 
 Operations:
 1. Validate `skus_dir` exists with `meta/mapping.md`
-2. Create `workspace_dir/skus/`
-3. `shutil.copytree` for `factual/`, `procedural/`, `relational/` → `workspace/skus/`
-4. Copy `postprocessing/` if exists → `workspace/skus/postprocessing/`
-5. Copy `skus_index.json` → `workspace/skus/skus_index.json` (with path rewriting)
-6. Copy `eureka.md` → `workspace/eureka.md` (root)
-7. Rewrite `mapping.md` paths → `workspace/mapping.md` (root)
+2. Create `ontology_dir/skus/`
+3. `shutil.copytree` for `factual/`, `procedural/`, `relational/` → `ontology/skus/`
+4. Copy `postprocessing/` if exists → `ontology/skus/postprocessing/`
+5. Copy `skus_index.json` → `ontology/skus/skus_index.json` (with path rewriting)
+6. Copy `eureka.md` → `ontology/eureka.md` (root)
+7. Rewrite `mapping.md` paths → `ontology/mapping.md` (root)
 
 **Path Rewriting**: Regex replaces any prefix before `factual/`/`procedural/`/`relational/`/`meta/` with `skus/`.
 
@@ -865,7 +865,7 @@ Applied to both `mapping.md` (text replacement) and `skus_index.json` (per-entry
 
 #### Step 2: Chatbot (`chatbot.py`)
 
-**Class**: `SpecChatbot(workspace_dir)`
+**Class**: `SpecChatbot(ontology_dir)`
 
 **Context Management**:
 - Compress `mapping.md`: keep `##` headers + `###` SKU paths + `**Description:**` lines (cap at 30K chars)
@@ -884,25 +884,25 @@ Applied to both `mapping.md` (text replacement) and `skus_index.json` (per-entry
 
 #### Step 3: README (`readme_generator.py`)
 
-**Class**: `ReadmeGenerator(workspace_dir)`
+**Class**: `ReadmeGenerator(ontology_dir)`
 
 Template-based, includes:
 - Quick start (read spec.md → use mapping.md → check eureka.md)
 - Directory structure diagram
 - SKU type table (factual, procedural, relational)
-- Stats from `WorkspaceManifest` (counts, file totals)
+- Stats from `OntologyManifest` (counts, file totals)
 
 ---
 
 ### Output Structure
 
 ```
-workspace/
+ontology/
 ├── README.md                    # Entry point for agents
 ├── spec.md                      # App specification (from chatbot)
 ├── mapping.md                   # SKU router (paths rewritten to skus/...)
 ├── eureka.md                    # Creative insights
-├── workspace_manifest.json      # Assembly metadata
+├── ontology_manifest.json      # Assembly metadata
 ├── chat_log.json                # Chatbot conversation log
 └── skus/
     ├── factual/sku_001..N/      # header.md + content.md/json
@@ -916,12 +916,12 @@ workspace/
 
 ### Schemas
 
-#### WorkspaceManifest
+#### OntologyManifest
 ```python
-class WorkspaceManifest(BaseModel):
+class OntologyManifest(BaseModel):
     created_at: datetime
     source_skus_dir: str           # Original SKUs directory
-    workspace_dir: str             # Target workspace directory
+    ontology_dir: str             # Target ontology directory
     factual_count: int             # Number of factual SKU folders
     procedural_count: int          # Number of procedural skill folders
     has_relational: bool           # Whether relational/ was copied
@@ -929,7 +929,7 @@ class WorkspaceManifest(BaseModel):
     has_eureka: bool               # Whether eureka.md was copied
     has_spec: bool                 # Whether spec.md was generated
     has_readme: bool               # Whether README.md was generated
-    total_files_copied: int        # Total files in workspace
+    total_files_copied: int        # Total files in ontology
     paths_rewritten: int           # Number of path rewrites applied
 ```
 
@@ -954,15 +954,15 @@ class ChatSession(BaseModel):
 
 ```bash
 # Full pipeline
-skus2workspace run                                    # Assemble + chatbot + README
-skus2workspace run -v                                 # Verbose mode
-skus2workspace run --skip-chatbot                     # No interactive chatbot
-skus2workspace run -s <skus_dir> -w <workspace_dir>   # Custom paths
+skus2ontology run                                    # Assemble + chatbot + README
+skus2ontology run -v                                 # Verbose mode
+skus2ontology run --skip-chatbot                     # No interactive chatbot
+skus2ontology run -s <skus_dir> -w <ontology_dir>   # Custom paths
 
 # Individual steps
-skus2workspace assemble -s <skus_dir> -w <workspace_dir>  # Copy only
-skus2workspace chatbot -w <workspace_dir>                  # Chatbot only
-skus2workspace init                                        # Create workspace dir
+skus2ontology assemble -s <skus_dir> -w <ontology_dir>  # Copy only
+skus2ontology chatbot -w <ontology_dir>                  # Chatbot only
+skus2ontology init                                        # Create ontology dir
 ```
 
 ---
@@ -971,7 +971,7 @@ skus2workspace init                                        # Create workspace di
 
 ```bash
 # Module 4: Workspace Assembly
-WORKSPACE_DIR=./workspace
+ONTOLOGY_DIR=./ontology
 CHATBOT_MODEL=Pro/zai-org/GLM-5
 MAX_CHAT_ROUNDS=5
 CHATBOT_TEMPERATURE=0.4
@@ -1041,12 +1041,12 @@ Module 3 produces:
 ### Data Flow
 
 ```
-output/skus/                    Module 4               workspace/
-├── factual/sku_001..300/ ────► SKUs2Workspace ──────► ├── README.md
+output/skus/                    Module 4               ontology/
+├── factual/sku_001..300/ ────► SKUs2Ontology ──────► ├── README.md
 ├── procedural/skill_001..82/─►   │                   ├── spec.md (chatbot)
 ├── relational/            ────►   ├─► Assembler ─────► ├── mapping.md (rewritten)
 ├── meta/                  ────►   │   (copy+rewrite)  ├── eureka.md
-│   ├── mapping.md         ────►   │                   ├── workspace_manifest.json
+│   ├── mapping.md         ────►   │                   ├── ontology_manifest.json
 │   └── eureka.md          ────►   ├─► Chatbot ───────► ├── chat_log.json
 ├── postprocessing/        ────►   │   (spec.md)       └── skus/
 └── skus_index.json        ────►   └─► README Gen ──────    ├── factual/
@@ -1066,12 +1066,12 @@ Module 4 expects:
 - `postprocessing/` (optional, copied if present)
 
 Module 4 produces:
-- Self-contained `workspace/` directory
+- Self-contained `ontology/` directory
 - `mapping.md` with paths rewritten to `skus/...`
 - `skus_index.json` with paths rewritten to `skus/...`
 - `spec.md` from interactive chatbot (or skipped)
 - `README.md` with quick start instructions
-- `workspace_manifest.json` with assembly metadata
+- `ontology_manifest.json` with assembly metadata
 - `chat_log.json` with conversation history
 
 ---
@@ -1162,7 +1162,7 @@ repomix                      # Git repo → Markdown
 
 9. **Chatbot context window**: Compressed mapping.md (~30K chars) + eureka (~5K chars) + conversation history may approach model limits on long conversations. The max rounds default (5) mitigates this.
 
-10. **No incremental assembly**: Re-running `skus2workspace assemble` overwrites the entire workspace. Consider diffing for large workspaces.
+10. **No incremental assembly**: Re-running `skus2ontology assemble` overwrites the entire ontology. Consider diffing for large ontologys.
 
 ---
 
@@ -1302,12 +1302,12 @@ class ConfidenceReport(BaseModel):
 
 ## Appendix E: Module 4 Schemas
 
-### WorkspaceManifest
+### OntologyManifest
 ```python
-class WorkspaceManifest(BaseModel):
+class OntologyManifest(BaseModel):
     created_at: datetime
     source_skus_dir: str
-    workspace_dir: str
+    ontology_dir: str
     factual_count: int = 0
     procedural_count: int = 0
     has_relational: bool = False
@@ -1336,4 +1336,4 @@ class ChatSession(BaseModel):
 
 ---
 
-*Document authored for Anything2Workspace product team. For implementation details, see source code in `src/` and design docs in `module_design/`.*
+*Document authored for Anything2Ontology product team. For implementation details, see source code in `src/` and design docs in `module_design/`.*

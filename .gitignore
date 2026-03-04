@@ -40,7 +40,7 @@ Thumbs.db
 # Project specific
 input/
 output/
-workspace/
+ontology/
 logs/
 *.log
 module_design/

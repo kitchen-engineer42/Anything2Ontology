@@ -1,4 +1,4 @@
-"""Schemas for workspace assembly."""
+"""Schemas for ontology assembly."""
 
 from datetime import datetime
 from typing import Optional
@@ -6,12 +6,12 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class WorkspaceManifest(BaseModel):
-    """Metadata about the assembled workspace."""
+class OntologyManifest(BaseModel):
+    """Metadata about the assembled ontology."""
 
     created_at: datetime = Field(default_factory=datetime.now)
     source_skus_dir: str = ""
-    workspace_dir: str = ""
+    ontology_dir: str = ""
     factual_count: int = 0
     procedural_count: int = 0
     has_relational: bool = False

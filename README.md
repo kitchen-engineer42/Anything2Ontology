@@ -1,16 +1,16 @@
-# Anything2Workspace
+# Anything2Ontology
 
-**Turn any document, URL, or repo into a structured workspace that coding agents can immediately build from.**
+**Turn any document, URL, or repo into a structured ontology that coding agents can immediately build from.**
 
-Anything2Workspace is a 4-module pipeline that ingests raw media (PDFs, slides, spreadsheets, YouTube videos, GitHub repos, websites), extracts structured knowledge, and assembles a self-contained workspace complete with a product spec — ready for an AI coding agent to pick up and start building.
+Anything2Ontology is a 4-module pipeline that ingests raw media (PDFs, slides, spreadsheets, YouTube videos, GitHub repos, websites), extracts structured knowledge, and assembles a self-contained ontology complete with a product spec — ready for an AI coding agent to pick up and start building.
 
 ```
  ┌──────────┐    ┌───────────────┐    ┌──────────────┐    ┌────────────┐    ┌──────────────┐
  │  Input    │───>│  Module 1     │───>│  Module 2    │───>│  Module 3  │───>│  Module 4    │
  │  Files &  │    │  Anything2    │    │  Markdown2   │    │  Chunks2   │    │  SKUs2       │
- │  URLs     │    │  Markdown     │    │  Chunks      │    │  SKUs      │    │  Workspace   │
+ │  URLs     │    │  Markdown     │    │  Chunks      │    │  SKUs      │    │  Ontology    │
  └──────────┘    └───────────────┘    └──────────────┘    └────────────┘    └──────────────┘
-  PDF, PPTX,       Unified              Token-sized         Factual,          workspace/
+  PDF, PPTX,       Unified              Token-sized         Factual,          ontology/
   XLSX, YouTube,   Markdown/JSON         chunks              Relational,       ├── spec.md
   GitHub repos,                          (100K tokens)       Procedural,       ├── mapping.md
   Websites                                                   Meta SKUs         └── skus/
@@ -22,21 +22,21 @@ You have a 2000-page regulation PDF. Or a GitHub repo with 500 files. Or a colle
 
 **The problem**: Dumping raw files into an LLM context doesn't work — they're too large, unstructured, and full of noise.
 
-**Anything2Workspace** solves this by:
+**Anything2Ontology** solves this by:
 1. **Parsing** everything into clean Markdown
 2. **Chunking** oversized documents into LLM-friendly pieces
 3. **Extracting** structured knowledge units (facts, skills, relationships, creative insights)
-4. **Assembling** a workspace with navigable knowledge + a product spec
+4. **Assembling** an ontology with navigable knowledge + a product spec
 
-The output `workspace/` folder is designed so a coding agent can read `spec.md` and start building, with `mapping.md` as a router to find relevant knowledge.
+The output `ontology/` folder is designed so a coding agent can read `spec.md` and start building, with `mapping.md` as a router to find relevant knowledge.
 
 ## Quick Start
 
 ### Local Installation
 
 ```bash
-git clone https://github.com/kitchen-engineer42/Anything2Workspace.git
-cd Anything2Workspace
+git clone https://github.com/kitchen-engineer42/Anything2Ontology.git
+cd Anything2Ontology
 
 python -m venv .venv
 source .venv/bin/activate
@@ -51,7 +51,7 @@ cp .env.example .env      # add your API keys
 
 ```bash
 docker compose build
-docker compose run anything2workspace bash
+docker compose run anything2ontology bash
 ```
 
 ### Run the Pipeline
@@ -62,13 +62,13 @@ docker compose run anything2workspace bash
 anything2md run              # Step 1: Parse to Markdown
 md2chunks run                # Step 2: Chunk into pieces
 chunks2skus run              # Step 3: Extract knowledge
-skus2workspace run           # Step 4: Assemble workspace (includes interactive chatbot)
+skus2ontology run            # Step 4: Assemble ontology (includes interactive chatbot)
 ```
 
 Or skip the chatbot for fully automated runs:
 
 ```bash
-skus2workspace run --skip-chatbot
+skus2ontology run --skip-chatbot
 ```
 
 ## Modules
@@ -125,24 +125,24 @@ chunks2skus show-index             # Display SKU summary
 chunks2skus postprocess all        # Run bucketing + dedup + proofreading
 ```
 
-### Module 4: SKUs2Workspace
+### Module 4: SKUs2Ontology
 
-Assembles SKUs into a self-contained workspace:
+Assembles SKUs into a self-contained ontology:
 
 1. **Assemble** — Copies SKUs, rewrites internal paths, promotes key files to root
 2. **Chatbot** — Interactive LLM conversation to generate `spec.md` from the knowledge base
 3. **README** — Auto-generated entry point for agents
 
 ```bash
-skus2workspace run                   # Full pipeline
-skus2workspace run --skip-chatbot    # Automated (no interactive chatbot)
-skus2workspace assemble              # Copy/organize only
-skus2workspace chatbot -w workspace/ # Chatbot only
+skus2ontology run                    # Full pipeline
+skus2ontology run --skip-chatbot     # Automated (no interactive chatbot)
+skus2ontology assemble               # Copy/organize only
+skus2ontology chatbot -w ontology/   # Chatbot only
 ```
 
-**Output workspace:**
+**Output ontology:**
 ```
-workspace/
+ontology/
 ├── spec.md              # Product specification (from chatbot)
 ├── mapping.md           # SKU router — find knowledge by topic
 ├── eureka.md            # Creative insights and feature ideas
@@ -191,13 +191,13 @@ src/
 ├── anything2markdown/     # Module 1: Universal parser
 ├── markdown2chunks/       # Module 2: Smart chunking
 ├── chunks2skus/           # Module 3: Knowledge extraction + postprocessing
-└── skus2workspace/        # Module 4: Workspace assembly + chatbot
+└── skus2ontology/         # Module 4: Ontology assembly + chatbot
 ```
 
 ```
 input/          # Place files and urls.txt here
 output/         # Intermediate outputs (Markdown, chunks, SKUs)
-workspace/      # Final output — hand this to your coding agent
+ontology/       # Final output — hand this to your coding agent
 logs/           # Dual-format logs (JSON + plain text)
 ```
 

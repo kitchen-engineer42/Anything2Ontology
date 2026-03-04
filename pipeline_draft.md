@@ -1,6 +1,6 @@
 # **Description**
 
-I am building a knowledge management and modelling pipeline called 'Anything2Workspace'. From user's view, this pipeline has a variety of media as input, and a comprehensive workspace as output. The workspace is fully equipped with all the data, knowledge and instructions that are necessary to build a complicated app. Ideally, user can open coding agents like Claude Code in this workspace with only very simple prompts like 'Read this file and start building', and then get a working app.
+I am building a knowledge management and modelling pipeline called 'Anything2Ontology'. From user's view, this pipeline has a variety of media as input, and a comprehensive workspace as output. The workspace is fully equipped with all the data, knowledge and instructions that are necessary to build a complicated app. Ideally, user can open coding agents like Claude Code in this workspace with only very simple prompts like 'Read this file and start building', and then get a working app.
 
 This pipeline runs with a selection models provided by SiliconFlow. I will put the api key of Silicon in .env for testing.
 

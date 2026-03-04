@@ -1,4 +1,4 @@
-"""Main orchestration pipeline for workspace assembly."""
+"""Main orchestration pipeline for ontology assembly."""
 
 import json
 from datetime import datetime
@@ -6,18 +6,18 @@ from pathlib import Path
 
 import structlog
 
-from skus2workspace.assembler import WorkspaceAssembler
-from skus2workspace.chatbot import SpecChatbot
-from skus2workspace.config import settings
-from skus2workspace.readme_generator import ReadmeGenerator
-from skus2workspace.schemas.workspace import WorkspaceManifest
+from skus2ontology.assembler import OntologyAssembler
+from skus2ontology.chatbot import SpecChatbot
+from skus2ontology.config import settings
+from skus2ontology.readme_generator import ReadmeGenerator
+from skus2ontology.schemas.ontology import OntologyManifest
 
 logger = structlog.get_logger(__name__)
 
 
-class WorkspacePipeline:
+class OntologyPipeline:
     """
-    Main pipeline for assembling a workspace from SKUs.
+    Main pipeline for assembling an ontology from SKUs.
 
     Steps:
     1. Assemble: copy/organize SKUs, rewrite paths
@@ -28,26 +28,26 @@ class WorkspacePipeline:
     def __init__(
         self,
         skus_dir: Path | None = None,
-        workspace_dir: Path | None = None,
+        ontology_dir: Path | None = None,
     ):
         self.skus_dir = Path(skus_dir) if skus_dir else settings.skus_output_dir
-        self.workspace_dir = Path(workspace_dir) if workspace_dir else settings.workspace_dir
+        self.ontology_dir = Path(ontology_dir) if ontology_dir else settings.ontology_dir
 
-    def run(self, skip_chatbot: bool = False) -> WorkspaceManifest:
+    def run(self, skip_chatbot: bool = False) -> OntologyManifest:
         """
-        Run the full workspace pipeline.
+        Run the full ontology pipeline.
 
         Args:
             skip_chatbot: If True, skip the interactive chatbot step.
 
         Returns:
-            WorkspaceManifest with assembly metadata.
+            OntologyManifest with assembly metadata.
         """
         start_time = datetime.now()
         logger.info(
-            "Starting workspace pipeline",
+            "Starting ontology pipeline",
             skus_dir=str(self.skus_dir),
-            workspace_dir=str(self.workspace_dir),
+            ontology_dir=str(self.ontology_dir),
             skip_chatbot=skip_chatbot,
         )
 
@@ -61,7 +61,7 @@ class WorkspacePipeline:
                 manifest.has_spec = True
 
         # Step 3: README
-        readme_gen = ReadmeGenerator(self.workspace_dir)
+        readme_gen = ReadmeGenerator(self.ontology_dir)
         readme_gen.write(manifest)
 
         # Save manifest
@@ -69,7 +69,7 @@ class WorkspacePipeline:
 
         duration = (datetime.now() - start_time).total_seconds()
         logger.info(
-            "Workspace pipeline complete",
+            "Ontology pipeline complete",
             total_files=manifest.total_files_copied,
             has_spec=manifest.has_spec,
             has_readme=manifest.has_readme,
@@ -78,25 +78,25 @@ class WorkspacePipeline:
 
         return manifest
 
-    def assemble_only(self) -> WorkspaceManifest:
+    def assemble_only(self) -> OntologyManifest:
         """Run only the assembly step."""
-        assembler = WorkspaceAssembler(self.skus_dir, self.workspace_dir)
+        assembler = OntologyAssembler(self.skus_dir, self.ontology_dir)
         return assembler.assemble()
 
     def chatbot_only(self) -> str:
         """
         Run only the chatbot step.
-        Workspace must already exist with mapping.md.
+        Ontology must already exist with mapping.md.
 
         Returns:
             Spec content string.
         """
-        chatbot = SpecChatbot(self.workspace_dir)
+        chatbot = SpecChatbot(self.ontology_dir)
         spec = chatbot.run()
 
         # Save chat log
         session = chatbot.get_session()
-        chat_log_path = self.workspace_dir / "chat_log.json"
+        chat_log_path = self.ontology_dir / "chat_log.json"
         chat_log_path.write_text(
             session.model_dump_json(indent=2),
             encoding="utf-8",
@@ -110,11 +110,11 @@ class WorkspacePipeline:
 
         return spec
 
-    def _save_manifest(self, manifest: WorkspaceManifest) -> None:
-        """Save workspace manifest to disk."""
-        manifest_path = self.workspace_dir / "workspace_manifest.json"
+    def _save_manifest(self, manifest: OntologyManifest) -> None:
+        """Save ontology manifest to disk."""
+        manifest_path = self.ontology_dir / "ontology_manifest.json"
         manifest_path.write_text(
             manifest.model_dump_json(indent=2),
             encoding="utf-8",
         )
-        logger.info("Saved workspace manifest", path=str(manifest_path))
+        logger.info("Saved ontology manifest", path=str(manifest_path))

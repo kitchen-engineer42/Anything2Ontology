@@ -1,12 +1,12 @@
 services:
-  anything2workspace:
+  anything2ontology:
     build: .
-    image: anything2workspace:latest
+    image: anything2ontology:latest
     env_file: .env
     volumes:
       - ./input:/app/input
       - ./output:/app/output
-      - ./workspace:/app/workspace
+      - ./ontology:/app/ontology
       - ./logs:/app/logs
     stdin_open: true    # For interactive chatbot
     tty: true           # For interactive chatbot

@@ -1,4 +1,4 @@
-"""Configuration management for workspace assembly module."""
+"""Configuration management for ontology assembly module."""
 
 from pathlib import Path
 from typing import Literal
@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Workspace assembly configuration loaded from environment variables."""
+    """Ontology assembly configuration loaded from environment variables."""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     skus_output_dir: Path = Field(default=Path("./output/skus"))
     log_dir: Path = Field(default=Path("./logs"))
 
-    # Module 4: Workspace
-    workspace_dir: Path = Field(default=Path("./workspace"))
+    # Module 4: Ontology
+    ontology_dir: Path = Field(default=Path("./ontology"))
 
     # LLM Configuration (SiliconFlow)
     siliconflow_api_key: str = Field(default="")

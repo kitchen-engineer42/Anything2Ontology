@@ -69,7 +69,10 @@
       "Bash(tail:*)",
       "Bash(git -C /Users/mac/Desktop/Anything2Workspace log --oneline --all)",
       "Bash(head:*)",
-      "Bash(env:*)"
+      "Bash(env:*)",
+      "Bash(git mv src/skus2workspace src/skus2ontology)",
+      "Bash(LANGUAGE=en skus2ontology --help)",
+      "Bash(git mv docs/algorithm_description.md docs/algorithm_description.zh.md)"
     ]
   }
 }

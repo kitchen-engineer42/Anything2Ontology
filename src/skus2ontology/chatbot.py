@@ -6,9 +6,9 @@ from pathlib import Path
 import click
 import structlog
 
-from skus2workspace.config import settings
-from skus2workspace.schemas.workspace import ChatMessage, ChatSession
-from skus2workspace.utils.llm_client import call_llm_chat
+from skus2ontology.config import settings
+from skus2ontology.schemas.ontology import ChatMessage, ChatSession
+from skus2ontology.utils.llm_client import call_llm_chat
 
 logger = structlog.get_logger(__name__)
 
@@ -34,7 +34,7 @@ CREATIVE IDEAS FROM KNOWLEDGE BASE:
 {eureka_snippet}
 
 RULES:
-- Reference SKUs by workspace-relative paths (e.g., skus/factual/sku_012, skus/procedural/skill_005)
+- Reference SKUs by ontology-relative paths (e.g., skus/factual/sku_012, skus/procedural/skill_005)
 - When drafting the spec, wrap it in a ```markdown code block
 - The user types /confirm to finalize the current spec
 - Be concise in your questions — ask 2-3 focused questions at a time
@@ -56,7 +56,7 @@ RULES:
 {eureka_snippet}
 
 规则：
-- 使用工作空间相对路径引用SKU（如 skus/factual/sku_012、skus/procedural/skill_005）
+- 使用本体相对路径引用SKU（如 skus/factual/sku_012、skus/procedural/skill_005）
 - 起草规格时，用 ```markdown 代码块包裹
 - 用户输入 /confirm 来确认当前规格
 - 提问要简洁——每次问2-3个针对性问题
@@ -67,12 +67,12 @@ FINALIZE_PROMPT = {
     "en": """The user has confirmed the spec. Please output the FINAL, clean version of spec.md.
 
 Output ONLY the spec content inside a ```markdown code block. No extra commentary.
-Include all sections discussed. Make sure all SKU references use workspace-relative paths (skus/factual/..., skus/procedural/..., etc.).""",
+Include all sections discussed. Make sure all SKU references use ontology-relative paths (skus/factual/..., skus/procedural/..., etc.).""",
 
     "zh": """用户已确认规格。请输出最终、整洁的 spec.md 版本。
 
 仅在 ```markdown 代码块内输出规格内容。不要额外评论。
-包含所有讨论过的章节。确保所有SKU引用使用工作空间相对路径（skus/factual/...、skus/procedural/... 等）。""",
+包含所有讨论过的章节。确保所有SKU引用使用本体相对路径（skus/factual/...、skus/procedural/... 等）。""",
 }
 
 UI_MESSAGES = {
@@ -156,8 +156,8 @@ def _extract_spec(response: str) -> str:
 class SpecChatbot:
     """Interactive chatbot that generates spec.md through conversation."""
 
-    def __init__(self, workspace_dir: Path):
-        self.workspace_dir = Path(workspace_dir).resolve()
+    def __init__(self, ontology_dir: Path):
+        self.ontology_dir = Path(ontology_dir).resolve()
         self.max_rounds = settings.max_chat_rounds
         self.session = ChatSession(max_rounds=self.max_rounds)
         self.lang = settings.language
@@ -207,7 +207,7 @@ class SpecChatbot:
                 if spec:
                     self.session.spec_content = spec
                     self._save_spec(spec)
-                    click.echo(self.ui["spec_saved"].format(path=self.workspace_dir / "spec.md"))
+                    click.echo(self.ui["spec_saved"].format(path=self.ontology_dir / "spec.md"))
                 return spec or ""
 
             # Add user message and increment round
@@ -238,7 +238,7 @@ class SpecChatbot:
             if spec:
                 self.session.spec_content = spec
                 self._save_spec(spec)
-                click.echo(self.ui["spec_saved"].format(path=self.workspace_dir / "spec.md"))
+                click.echo(self.ui["spec_saved"].format(path=self.ontology_dir / "spec.md"))
             return spec or ""
 
         return self.session.spec_content or ""
@@ -248,7 +248,7 @@ class SpecChatbot:
         mapping_summary = ""
         eureka_snippet = ""
 
-        mapping_path = self.workspace_dir / "mapping.md"
+        mapping_path = self.ontology_dir / "mapping.md"
         if mapping_path.exists():
             content = mapping_path.read_text(encoding="utf-8")
             mapping_summary = _compress_mapping(content)
@@ -258,7 +258,7 @@ class SpecChatbot:
                 compressed_chars=len(mapping_summary),
             )
 
-        eureka_path = self.workspace_dir / "eureka.md"
+        eureka_path = self.ontology_dir / "eureka.md"
         if eureka_path.exists():
             content = eureka_path.read_text(encoding="utf-8")
             eureka_snippet = content[:EUREKA_SNIPPET_MAX_CHARS]
@@ -290,8 +290,8 @@ class SpecChatbot:
         return _extract_spec(response)
 
     def _save_spec(self, content: str) -> None:
-        """Save spec.md to workspace."""
-        spec_path = self.workspace_dir / "spec.md"
+        """Save spec.md to ontology."""
+        spec_path = self.ontology_dir / "spec.md"
         spec_path.write_text(content, encoding="utf-8")
         logger.info("Saved spec.md", path=str(spec_path), chars=len(content))
 

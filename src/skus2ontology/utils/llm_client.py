@@ -5,7 +5,7 @@ from typing import Optional
 import structlog
 from openai import OpenAI
 
-from skus2workspace.config import settings
+from skus2ontology.config import settings
 
 logger = structlog.get_logger(__name__)
 

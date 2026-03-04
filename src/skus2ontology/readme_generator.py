@@ -1,16 +1,16 @@
-"""Step 3: Generate README.md for the workspace."""
+"""Step 3: Generate README.md for the ontology."""
 
 from pathlib import Path
 
 import structlog
 
-from skus2workspace.config import settings
-from skus2workspace.schemas.workspace import WorkspaceManifest
+from skus2ontology.config import settings
+from skus2ontology.schemas.ontology import OntologyManifest
 
 logger = structlog.get_logger(__name__)
 
 README_TEMPLATE = {
-    "en": """# Workspace
+    "en": """# Ontology
 
 ## Quick Start
 
@@ -21,11 +21,11 @@ README_TEMPLATE = {
 ## Structure
 
 ```
-workspace/
+ontology/
 ├── spec.md                      # App specification
 ├── mapping.md                   # SKU router — find the right knowledge
 ├── eureka.md                    # Creative insights and feature ideas
-├── workspace_manifest.json      # Assembly metadata
+├── ontology_manifest.json       # Assembly metadata
 ├── chat_log.json                # Chatbot conversation log
 └── skus/
     ├── factual/                 # Facts, definitions, data (header.md + content)
@@ -55,7 +55,7 @@ workspace/
 4. Reference `eureka.md` for creative ideas that connect multiple knowledge areas
 """,
 
-    "zh": """# 工作空间
+    "zh": """# 本体
 
 ## 快速开始
 
@@ -66,11 +66,11 @@ workspace/
 ## 目录结构
 
 ```
-workspace/
+ontology/
 ├── spec.md                      # 应用规格说明
 ├── mapping.md                   # SKU路由 — 找到正确的知识
 ├── eureka.md                    # 创意洞察和功能构想
-├── workspace_manifest.json      # 组装元数据
+├── ontology_manifest.json       # 组装元数据
 ├── chat_log.json                # 对话记录
 └── skus/
     ├── factual/                 # 事实、定义、数据（header.md + content）
@@ -122,17 +122,17 @@ STATS_LABELS = {
 
 
 class ReadmeGenerator:
-    """Generates README.md for the assembled workspace."""
+    """Generates README.md for the assembled ontology."""
 
-    def __init__(self, workspace_dir: Path):
-        self.workspace_dir = Path(workspace_dir).resolve()
+    def __init__(self, ontology_dir: Path):
+        self.ontology_dir = Path(ontology_dir).resolve()
 
-    def write(self, manifest: WorkspaceManifest) -> None:
+    def write(self, manifest: OntologyManifest) -> None:
         """
         Generate and write README.md.
 
         Args:
-            manifest: WorkspaceManifest with counts and status.
+            manifest: OntologyManifest with counts and status.
         """
         lang = settings.language
         labels = STATS_LABELS[lang]
@@ -147,7 +147,7 @@ class ReadmeGenerator:
         stats_section = "\n".join(stats_lines)
         content = README_TEMPLATE[lang].format(stats_section=stats_section)
 
-        readme_path = self.workspace_dir / "README.md"
+        readme_path = self.ontology_dir / "README.md"
         readme_path.write_text(content, encoding="utf-8")
 
         manifest.has_readme = True

@@ -168,7 +168,7 @@ def test_to_markdown_chinese_labels():
 
 def test_readme_template_has_both_languages():
     """README template has both 'en' and 'zh' keys."""
-    from skus2workspace.readme_generator import README_TEMPLATE
+    from skus2ontology.readme_generator import README_TEMPLATE
 
     assert "en" in README_TEMPLATE
     assert "zh" in README_TEMPLATE
@@ -178,7 +178,7 @@ def test_readme_template_has_both_languages():
 
 def test_readme_template_zh_content():
     """Chinese README template has Chinese section headers."""
-    from skus2workspace.readme_generator import README_TEMPLATE
+    from skus2ontology.readme_generator import README_TEMPLATE
 
     zh = README_TEMPLATE["zh"]
     assert "快速开始" in zh
@@ -192,7 +192,7 @@ def test_readme_template_zh_content():
 
 def test_chatbot_templates_have_both_languages():
     """Chatbot system prompt and finalize prompt have both languages."""
-    from skus2workspace.chatbot import FINALIZE_PROMPT, SYSTEM_PROMPT_TEMPLATE
+    from skus2ontology.chatbot import FINALIZE_PROMPT, SYSTEM_PROMPT_TEMPLATE
 
     assert "en" in SYSTEM_PROMPT_TEMPLATE
     assert "zh" in SYSTEM_PROMPT_TEMPLATE

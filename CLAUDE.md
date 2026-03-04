@@ -1,7 +1,7 @@
-# Anything2Workspace - Project Context
+# Anything2Ontology - Project Context
 
 ## Overview
-Anything2Workspace is a knowledge management and modelling pipeline that converts various media formats into a comprehensive workspace for coding agents. The pipeline transforms inputs (files, URLs, repos) into structured knowledge that can be used by AI coding assistants to build applications.
+Anything2Ontology is a knowledge management and modelling pipeline that converts various media formats into a comprehensive ontology for coding agents. The pipeline transforms inputs (files, URLs, repos) into structured knowledge that can be used by AI coding assistants to build applications.
 
 ## Key Design Principles
 
@@ -29,7 +29,7 @@ All operations generate both:
 ## Project Structure
 
 ```
-Anything2Workspace/
+Anything2Ontology/
 ├── src/
 │   ├── anything2markdown/     # Module 1: Universal parser
 │   │   ├── parsers/           # File parsers (MarkItDown, MinerU, PaddleOCR-VL, Tabular)
@@ -53,20 +53,20 @@ Anything2Workspace/
 │   │   ├── router.py          # Load chunks, route to extractors
 │   │   ├── pipeline.py        # Main orchestration
 │   │   └── cli.py             # CLI interface (chunks2skus)
-│   └── skus2workspace/        # Module 4: Workspace assembly
+│   └── skus2ontology/         # Module 4: Ontology assembly
 │       ├── utils/             # Logging, LLM client (with multi-turn)
-│       ├── schemas/           # WorkspaceManifest, ChatSession
+│       ├── schemas/           # OntologyManifest, ChatSession
 │       ├── assembler.py       # Copy SKUs, rewrite paths
 │       ├── chatbot.py         # Interactive spec.md generation
 │       ├── readme_generator.py # Template-based README.md
 │       ├── pipeline.py        # Main orchestration
-│       └── cli.py             # CLI interface (skus2workspace)
+│       └── cli.py             # CLI interface (skus2ontology)
 ├── input/                     # User input files
 ├── output/                    # Module 1 output (flat structure)
 │   ├── chunks/                # Module 2 output (chunked markdown)
 │   ├── passthrough/           # JSON files (unchanged)
 │   └── skus/                  # Module 3 output (knowledge units)
-├── workspace/                 # Module 4 output (self-contained workspace)
+├── ontology/                  # Module 4 output (self-contained ontology)
 ├── logs/                      # JSON and text logs
 └── module_design/             # Design docs for each module
 ```
@@ -216,36 +216,36 @@ chunks2skus init                   # Create output directories
 - `EXTRACTION_MODEL=Pro/zai-org/GLM-5` - Model for extraction
 - `SKUS_OUTPUT_DIR=./output/skus` - Output directory
 
-## Module 4: SKUs2Workspace
+## Module 4: SKUs2Ontology
 
 ### Purpose
-Assemble extracted SKUs into a self-contained workspace where a coding agent can "read spec.md and start building." Three steps: copy/organize SKUs, interactive chatbot to generate spec.md, generate README.md.
+Assemble extracted SKUs into a self-contained ontology where a coding agent can "read spec.md and start building." Three steps: copy/organize SKUs, interactive chatbot to generate spec.md, generate README.md.
 
 ### Pipeline Steps
-1. **Assembly** (`assembler.py`): Copy factual/, procedural/, relational/, postprocessing/ into workspace/skus/. Copy eureka.md and mapping.md to workspace root. Rewrite all SKU paths (e.g. `output/skus/factual/sku_001` → `skus/factual/sku_001`) in mapping.md and skus_index.json.
+1. **Assembly** (`assembler.py`): Copy factual/, procedural/, relational/, postprocessing/ into ontology/skus/. Copy eureka.md and mapping.md to ontology root. Rewrite all SKU paths (e.g. `output/skus/factual/sku_001` → `skus/factual/sku_001`) in mapping.md and skus_index.json.
 2. **Chatbot** (`chatbot.py`): Interactive multi-turn conversation with LLM. Compresses mapping.md into a summary for the system prompt. User describes their app → LLM drafts spec.md → user iterates → `/confirm` to finalize. Max rounds configurable.
-3. **README** (`readme_generator.py`): Template-based README.md with quick start, structure overview, SKU type table, and stats from WorkspaceManifest.
+3. **README** (`readme_generator.py`): Template-based README.md with quick start, structure overview, SKU type table, and stats from OntologyManifest.
 
 ### Project Structure
 ```
-src/skus2workspace/
+src/skus2ontology/
 ├── utils/              # Logging, LLM client (call_llm + call_llm_chat)
-├── schemas/            # WorkspaceManifest, ChatMessage, ChatSession
+├── schemas/            # OntologyManifest, ChatMessage, ChatSession
 ├── assembler.py        # Copy SKUs, rewrite paths
 ├── chatbot.py          # Interactive spec.md generation
 ├── readme_generator.py # Template-based README.md
 ├── pipeline.py         # Main orchestration
-└── cli.py              # CLI interface (skus2workspace)
+└── cli.py              # CLI interface (skus2ontology)
 ```
 
 ### Output Structure
 ```
-workspace/
+ontology/
 ├── README.md                    # Entry point for agents
 ├── spec.md                      # App specification (from chatbot)
 ├── mapping.md                   # SKU router (paths rewritten to skus/...)
 ├── eureka.md                    # Creative insights
-├── workspace_manifest.json      # Assembly metadata
+├── ontology_manifest.json       # Assembly metadata
 ├── chat_log.json                # Chatbot conversation log
 └── skus/
     ├── factual/                 # header.md + content.md/json per SKU
@@ -257,17 +257,17 @@ workspace/
 
 ### CLI Commands
 ```bash
-skus2workspace run                                    # Full pipeline
-skus2workspace run -v                                 # Verbose
-skus2workspace run --skip-chatbot                     # No interactive chatbot
-skus2workspace run -s <skus_dir> -w <workspace_dir>   # Custom paths
-skus2workspace assemble -s <skus_dir> -w <workspace_dir>  # Copy only
-skus2workspace chatbot -w <workspace_dir>             # Chatbot only
-skus2workspace init                                   # Create workspace dir
+skus2ontology run                                      # Full pipeline
+skus2ontology run -v                                   # Verbose
+skus2ontology run --skip-chatbot                       # No interactive chatbot
+skus2ontology run -s <skus_dir> -w <ontology_dir>      # Custom paths
+skus2ontology assemble -s <skus_dir> -w <ontology_dir> # Copy only
+skus2ontology chatbot -w <ontology_dir>                # Chatbot only
+skus2ontology init                                     # Create ontology dir
 ```
 
 ### Configuration
-- `WORKSPACE_DIR=./workspace` - Output workspace directory
+- `ONTOLOGY_DIR=./ontology` - Output ontology directory
 - `CHATBOT_MODEL=Pro/zai-org/GLM-5` - Model for spec chatbot
 - `MAX_CHAT_ROUNDS=5` - Max conversation rounds
 - `CHATBOT_TEMPERATURE=0.4` - LLM temperature
@@ -278,7 +278,7 @@ skus2workspace init                                   # Create workspace dir
 1. **Anything2Markdown** ✓ - Universal parser
 2. **Markdown2Chunks** ✓ - Smart chunking
 3. **Chunks2SKUs** ✓ - Knowledge extraction (Factual, Relational, Procedural, Meta)
-4. **SKUs2Workspace** ✓ - Workspace assembly with spec.md chatbot
+4. **SKUs2Ontology** ✓ - Ontology assembly with spec.md chatbot
 
 ## Development Notes
 

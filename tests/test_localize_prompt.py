@@ -69,7 +69,7 @@ class TestPromptDictsHaveBothLanguages:
         assert "zh" in CONFIDENCE_SYSTEM_PROMPT
 
     def test_chatbot_prompts(self):
-        from skus2workspace.chatbot import FINALIZE_PROMPT, SYSTEM_PROMPT_TEMPLATE
+        from skus2ontology.chatbot import FINALIZE_PROMPT, SYSTEM_PROMPT_TEMPLATE
 
         assert "en" in SYSTEM_PROMPT_TEMPLATE
         assert "zh" in SYSTEM_PROMPT_TEMPLATE
@@ -77,7 +77,7 @@ class TestPromptDictsHaveBothLanguages:
         assert "zh" in FINALIZE_PROMPT
 
     def test_readme_template(self):
-        from skus2workspace.readme_generator import README_TEMPLATE
+        from skus2ontology.readme_generator import README_TEMPLATE
 
         assert "en" in README_TEMPLATE
         assert "zh" in README_TEMPLATE
@@ -157,14 +157,14 @@ class TestPlaceholderParity:
         assert en_ph == zh_ph, f"Mismatch: en={en_ph}, zh={zh_ph}"
 
     def test_chatbot_system_prompt_placeholders(self):
-        from skus2workspace.chatbot import SYSTEM_PROMPT_TEMPLATE
+        from skus2ontology.chatbot import SYSTEM_PROMPT_TEMPLATE
 
         en_ph = self._extract_placeholders(SYSTEM_PROMPT_TEMPLATE["en"])
         zh_ph = self._extract_placeholders(SYSTEM_PROMPT_TEMPLATE["zh"])
         assert en_ph == zh_ph, f"Mismatch: en={en_ph}, zh={zh_ph}"
 
     def test_readme_template_placeholders(self):
-        from skus2workspace.readme_generator import README_TEMPLATE
+        from skus2ontology.readme_generator import README_TEMPLATE
 
         en_ph = self._extract_placeholders(README_TEMPLATE["en"])
         zh_ph = self._extract_placeholders(README_TEMPLATE["zh"])
@@ -193,7 +193,7 @@ class TestLanguageConfigDefault:
         assert s.language == "en"
 
     def test_module4_default(self):
-        from skus2workspace.config import Settings
+        from skus2ontology.config import Settings
 
         s = Settings(siliconflow_api_key="test")
         assert s.language == "en"

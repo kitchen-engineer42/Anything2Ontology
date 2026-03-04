@@ -6,7 +6,7 @@ from datetime import datetime
 
 import structlog
 
-from skus2workspace.config import settings
+from skus2ontology.config import settings
 
 
 def setup_logging() -> structlog.stdlib.BoundLogger:
@@ -67,7 +67,7 @@ def setup_logging() -> structlog.stdlib.BoundLogger:
 
     # JSON file handler
     if settings.log_format in ("json", "both"):
-        json_file = json_log_dir / f"skus2workspace_{timestamp}.json"
+        json_file = json_log_dir / f"skus2ontology_{timestamp}.json"
         json_handler = logging.FileHandler(json_file, encoding="utf-8")
         json_handler.setFormatter(
             structlog.stdlib.ProcessorFormatter(
@@ -79,7 +79,7 @@ def setup_logging() -> structlog.stdlib.BoundLogger:
 
     # Plain text file handler
     if settings.log_format in ("text", "both"):
-        text_file = text_log_dir / f"skus2workspace_{timestamp}.log"
+        text_file = text_log_dir / f"skus2ontology_{timestamp}.log"
         text_handler = logging.FileHandler(text_file, encoding="utf-8")
         text_handler.setFormatter(
             structlog.stdlib.ProcessorFormatter(

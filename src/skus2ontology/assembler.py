@@ -1,4 +1,4 @@
-"""Step 1: Assemble workspace by copying and reorganizing SKUs."""
+"""Step 1: Assemble ontology by copying and reorganizing SKUs."""
 
 import json
 import re
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import structlog
 
-from skus2workspace.schemas.workspace import WorkspaceManifest
+from skus2ontology.schemas.ontology import OntologyManifest
 
 logger = structlog.get_logger(__name__)
 
@@ -42,29 +42,29 @@ def _rewrite_path(text: str) -> tuple[str, int]:
     return result, count
 
 
-class WorkspaceAssembler:
-    """Copies and reorganizes SKUs into a self-contained workspace."""
+class OntologyAssembler:
+    """Copies and reorganizes SKUs into a self-contained ontology."""
 
-    def __init__(self, skus_dir: Path, workspace_dir: Path):
+    def __init__(self, skus_dir: Path, ontology_dir: Path):
         self.skus_dir = Path(skus_dir).resolve()
-        self.workspace_dir = Path(workspace_dir).resolve()
+        self.ontology_dir = Path(ontology_dir).resolve()
 
-    def assemble(self) -> WorkspaceManifest:
+    def assemble(self) -> OntologyManifest:
         """
         Run the full assembly process.
 
         Returns:
-            WorkspaceManifest with counts and status.
+            OntologyManifest with counts and status.
         """
         logger.info(
-            "Starting workspace assembly",
+            "Starting ontology assembly",
             skus_dir=str(self.skus_dir),
-            workspace_dir=str(self.workspace_dir),
+            ontology_dir=str(self.ontology_dir),
         )
 
-        manifest = WorkspaceManifest(
+        manifest = OntologyManifest(
             source_skus_dir=str(self.skus_dir),
-            workspace_dir=str(self.workspace_dir),
+            ontology_dir=str(self.ontology_dir),
         )
 
         # Validate source
@@ -76,8 +76,8 @@ class WorkspaceAssembler:
         if not mapping_path.exists():
             logger.warning("mapping.md not found in meta/", path=str(mapping_path))
 
-        # Create workspace
-        skus_dest = self.workspace_dir / "skus"
+        # Create ontology
+        skus_dest = self.ontology_dir / "skus"
         skus_dest.mkdir(parents=True, exist_ok=True)
 
         total_files = 0
@@ -114,7 +114,7 @@ class WorkspaceAssembler:
             total_files += pp_count
             logger.info("Copied postprocessing", files=pp_count)
 
-        # 3. Copy skus_index.json → workspace/skus/skus_index.json (with path rewriting)
+        # 3. Copy skus_index.json → ontology/skus/skus_index.json (with path rewriting)
         index_src = self.skus_dir / "skus_index.json"
         if index_src.exists():
             index_dst = skus_dest / "skus_index.json"
@@ -123,18 +123,18 @@ class WorkspaceAssembler:
             total_files += 1
             logger.info("Copied and rewrote skus_index.json", paths_rewritten=rewrite_count)
 
-        # 4. Copy eureka.md → workspace/eureka.md (root)
+        # 4. Copy eureka.md → ontology/eureka.md (root)
         eureka_src = self.skus_dir / "meta" / "eureka.md"
         if eureka_src.exists():
-            eureka_dst = self.workspace_dir / "eureka.md"
+            eureka_dst = self.ontology_dir / "eureka.md"
             shutil.copy2(eureka_src, eureka_dst)
             manifest.has_eureka = True
             total_files += 1
-            logger.info("Copied eureka.md to workspace root")
+            logger.info("Copied eureka.md to ontology root")
 
-        # 5. Rewrite mapping.md → workspace/mapping.md (root)
+        # 5. Rewrite mapping.md → ontology/mapping.md (root)
         if mapping_path.exists():
-            mapping_dst = self.workspace_dir / "mapping.md"
+            mapping_dst = self.ontology_dir / "mapping.md"
             content = mapping_path.read_text(encoding="utf-8")
             rewritten, rewrite_count = _rewrite_path(content)
             mapping_dst.write_text(rewritten, encoding="utf-8")
